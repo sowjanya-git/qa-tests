@@ -1,0 +1,48 @@
+name: 🔹 Test Run
+description: Log a test execution cycle and sync to Jira
+labels: [test-run]
+title: "Test Run: [cycle-name] — [app]"
+body:
+  - type: dropdown
+    id: app
+    attributes:
+      label: App
+      options: [new-app, legacy-app]
+    validations: { required: true }
+  - type: input
+    id: cycle
+    attributes:
+      label: Cycle name (e.g., 2025-W40 or 2025-10)
+      placeholder: 2025-W40
+    validations: { required: true }
+  - type: dropdown
+    id: environment
+    attributes:
+      label: Environment
+      options: [QA, UAT, Prod]
+    validations: { required: true }
+  - type: input
+    id: jira_keys
+    attributes:
+      label: Jira issue keys (comma-separated)
+      placeholder: PROJ-123, PROJ-456
+    validations: { required: true }
+  - type: textarea
+    id: results
+    attributes:
+      label: Test Case Results (structured)
+      description: |
+        Put your results inside a fenced block like this:
+
+        ```results
+        TC-0001 | PASS  | PROJ-123 | smoke login ok
+        TC-0002 | FAIL  | PROJ-124 | error toast persists
+        TC-0003 | BLOCK | PROJ-123 | data missing
+        ```
+      render: bash
+    validations: { required: true }
+  - type: input
+    id: build
+    attributes:
+      label: Build/Release tag
+      placeholder: v2025.40.1

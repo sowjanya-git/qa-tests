@@ -1,0 +1,92 @@
+name: Sync Test Run results to Jira
+on:
+  issues:
+    types: [opened, edited, closed]
+
+jobs:
+  sync:
+    if: contains(github.event.issue.labels.*.name, 'test-run')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Extract Jira keys & results
+        id: extract
+        run: |
+          body="${{ github.event.issue.body }}"
+
+          jira_keys=$(printf "%s" "$body" | grep -Eo '[A-Z]+-[0-9]+' | tr ' ' '\n' | sort -u | tr '\n' ' ')
+          echo "JIRA_KEYS=$jira_keys" >> $GITHUB_OUTPUT
+
+          printf "%s" "$body" | awk '/```results/{flag=1;next}/```/{flag=0}flag' > results.txt || true
+          sed -i 's/[[:space:]]\+/ /g' results.txt || true
+
+          pass=$(grep -i ' PASS ' results.txt | wc -l | tr -d ' ')
+          fail=$(grep -i ' FAIL ' results.txt | wc -l | tr -d ' ')
+          block=$(grep -i ' BLOCK ' results.txt | wc -l | tr -d ' ')
+          total=$((pass+fail+block))
+
+          echo "TOTAL=$total" >> $GITHUB_OUTPUT
+          echo "PASS=$pass" >> $GITHUB_OUTPUT
+          echo "FAIL=$fail" >> $GITHUB_OUTPUT
+          echo "BLOCK=$block" >> $GITHUB_OUTPUT
+
+      - name: Fail if no Jira keys or results
+        if: steps.extract.outputs.JIRA_KEYS == '' || steps.extract.outputs.TOTAL == '0'
+        run: |
+          echo "No Jira keys or no results parsed. Make sure you included keys and a ```results fenced block."
+          exit 1
+
+      - name: Post summary to each Jira key
+        env:
+          JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
+          JIRA_USER_EMAIL: ${{ secrets.JIRA_USER_EMAIL }}
+          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+          JIRA_KEYS: ${{ steps.extract.outputs.JIRA_KEYS }}
+          RUN_URL: ${{ github.event.issue.html_url }}
+          RUN_TITLE: ${{ github.event.issue.title }}
+          PASS: ${{ steps.extract.outputs.PASS }}
+          FAIL: ${{ steps.extract.outputs.FAIL }}
+          BLOCK: ${{ steps.extract.outputs.BLOCK }}
+          TOTAL: ${{ steps.extract.outputs.TOTAL }}
+        run: |
+          summary="*${RUN_TITLE}*\nResults: ${PASS} Pass, ${FAIL} Fail, ${BLOCK} Blocked (Total ${TOTAL})\nDetails: ${RUN_URL}"
+          code=$(printf "%s" "$summary" | sed ':a;N;$!ba;s/\n/\\n/g')
+
+          status=0
+          for key in $JIRA_KEYS; do
+            echo "Posting summary to $key"
+            http=$(curl -sS -o /dev/null -w "%{http_code}" -X POST \
+              -H "Content-Type: application/json" \
+              -u "$JIRA_USER_EMAIL:$JIRA_API_TOKEN" \
+              "$JIRA_BASE_URL/rest/api/3/issue/$key/comment" \
+              --data "{\"body\":\"$code\"}")
+            if [ "$http" -ne 201 ]; then
+              echo "Failed to comment on $key (HTTP $http)"; status=1
+            fi
+          done
+          exit $status
+
+      - name: Post detailed line-by-line results (code block)
+        env:
+          JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
+          JIRA_USER_EMAIL: ${{ secrets.JIRA_USER_EMAIL }}
+          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+          JIRA_KEYS: ${{ steps.extract.outputs.JIRA_KEYS }}
+        run: |
+          printf "{code}\n" > results_block.txt
+          cat results.txt >> results_block.txt
+          printf "\n{code}\n" >> results_block.txt
+          payload=$(jq -Rs '{body: .}' results_block.txt)
+
+          status=0
+          for key in $JIRA_KEYS; do
+            echo "Posting detailed block to $key"
+            http=$(curl -sS -o /dev/null -w "%{http_code}" -X POST \
+              -H "Content-Type: application/json" \
+              -u "$JIRA_USER_EMAIL:$JIRA_API_TOKEN" \
+              "$JIRA_BASE_URL/rest/api/3/issue/$key/comment" \
+              --data "$payload")
+            if [ "$http" -ne 201 ]; then
+              echo "Failed to post details to $key (HTTP $http)"; status=1
+            fi
+          done
+          exit $status
