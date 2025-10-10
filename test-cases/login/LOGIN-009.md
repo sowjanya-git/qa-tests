@@ -7,6 +7,7 @@ Pre-Conditions: Registered user exists
 Priority: Medium
 Test Type: Regression
 Defect ID: PFT-751
+Jira Keys: SCRUM-2
 ---
 
 ## Test Steps

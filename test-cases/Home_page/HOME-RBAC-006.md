@@ -7,6 +7,7 @@ Pre-Conditions: Logged in as Admin
 Priority: High
 Test Type: Role-Based UI
 Defect ID: 
+Jira Keys: SCRUM-6
 ---
 
 ## Test Steps

@@ -7,6 +7,7 @@ Pre-Conditions: Regular user without any menu access
 Priority: High
 Test Type: Negative
 Defect ID: 
+Jira Keys: SCRUM-6
 ---
 
 ## Test Steps

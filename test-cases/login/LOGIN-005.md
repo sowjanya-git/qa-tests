@@ -7,6 +7,7 @@ Pre-Conditions: User has linked Microsoft account
 Priority: High
 Test Type: Smoke
 Defect ID: 
+Jira Keys: SCRUM-3
 ---
 
 ## Test Steps

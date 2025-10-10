@@ -7,6 +7,7 @@ Pre-Conditions: Microsoft login is enabled
 Priority: Medium
 Test Type: Regression
 Defect ID: 
+Jira Keys: SCRUM-3
 ---
 
 ## Test Steps

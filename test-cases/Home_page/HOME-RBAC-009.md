@@ -7,6 +7,7 @@ Pre-Conditions: Any user (Admin or Regular)
 Priority: Medium
 Test Type: UI Consistency
 Defect ID: 
+Jira Keys: SCRUM-6
 ---
 
 ## Test Steps

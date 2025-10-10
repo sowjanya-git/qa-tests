@@ -7,6 +7,7 @@ Pre-Conditions:
 Priority: Medium
 Test Type: Regression
 Defect ID: 
+Jira Keys: SCRUM-2
 ---
 
 ## Test Steps

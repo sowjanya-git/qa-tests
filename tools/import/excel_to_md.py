@@ -2,7 +2,7 @@ import pandas as pd
 import os
 
 # Input Excel file
-excel_file = "../../GitHub Test cases.xlsx"
+excel_file = "GitHub Test cases.xlsx"
 
 # Output folder for markdown test cases
 output_dir = "test-cases"

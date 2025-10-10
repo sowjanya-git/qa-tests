@@ -7,6 +7,7 @@ Pre-Conditions: User account is deactivated
 Priority: High
 Test Type: Regression
 Defect ID: 
+Jira Keys: SCRUM-2
 ---
 
 ## Test Steps

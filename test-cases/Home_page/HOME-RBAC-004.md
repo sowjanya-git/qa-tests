@@ -7,6 +7,7 @@ Pre-Conditions: Logged in as Admin
 Priority: Medium
 Test Type: Smoke
 Defect ID: 
+Jira Keys: SCRUM-6
 ---
 
 ## Test Steps

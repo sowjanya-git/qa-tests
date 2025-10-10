@@ -9,6 +9,7 @@ Pre-Conditions: User must be registered and active
 Priority: Medium
 Test Type: End-to-End + Security
 Defect ID: 
+Jira Keys: SCRUM-2
 ---
 
 ## Test Steps

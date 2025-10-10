@@ -7,6 +7,7 @@ Pre-Conditions: Regular user with:Access Mgmt Connections (✅) Workflows ( X ) 
 Priority: High
 Test Type: Permission Mapping
 Defect ID: 
+Jira Keys: SCRUM-6
 ---
 
 ## Test Steps

@@ -7,6 +7,7 @@ Pre-Conditions: Login page loaded
 Priority: High
 Test Type: Regression
 Defect ID: 
+Jira Keys: SCRUM-2
 ---
 
 ## Test Steps

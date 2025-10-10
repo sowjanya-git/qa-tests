@@ -7,6 +7,7 @@ Pre-Conditions: Okta SSO configured and enabled
 Priority: High
 Test Type: Sanity
 Defect ID: 
+Jira Keys: SCRUM-4
 ---
 
 ## Test Steps

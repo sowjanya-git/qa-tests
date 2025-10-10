@@ -7,6 +7,7 @@ Pre-Conditions: Home screen loaded
 Priority: Medium
 Test Type: UI/UX
 Defect ID: 
+Jira Keys: SCRUM-6
 ---
 
 ## Test Steps

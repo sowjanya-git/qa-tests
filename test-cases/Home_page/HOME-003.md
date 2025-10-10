@@ -7,6 +7,7 @@ Pre-Conditions: Regular user with/without workflow access
 Priority: High
 Test Type: Permission
 Defect ID: 
+Jira Keys: SCRUM-6
 ---
 
 ## Test Steps

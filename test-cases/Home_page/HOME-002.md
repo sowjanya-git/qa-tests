@@ -7,6 +7,7 @@ Pre-Conditions: Home screen loaded
 Priority: High
 Test Type: Functional
 Defect ID: 
+Jira Keys: SCRUM-6
 ---
 
 ## Test Steps

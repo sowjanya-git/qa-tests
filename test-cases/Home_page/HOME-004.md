@@ -7,6 +7,7 @@ Pre-Conditions: Logged in as any user
 Priority: Low
 Test Type: UI
 Defect ID: 
+Jira Keys: SCRUM-6
 ---
 
 ## Test Steps

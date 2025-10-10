@@ -7,6 +7,7 @@ Pre-Conditions: Registered user exists
 Priority: High
 Test Type: Sanity
 Defect ID: 
+Jira Keys: SCRUM-2
 ---
 
 ## Test Steps
