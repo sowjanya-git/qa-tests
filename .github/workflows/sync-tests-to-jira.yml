@@ -32,5 +32,5 @@ jobs:
           JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
           JIRA_EMAIL: ${{ secrets.JIRA_EMAIL }}
           JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
-          ADD_REMOTE_LINKS: 'false'   # set to 'true' if you also want web links
+          ADD_REMOTE_LINKS: 'true'   # set to 'true' if you also want web links
         run: python tools/import/sync_to_jira.py
