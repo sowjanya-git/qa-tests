@@ -2,10 +2,11 @@ name: Sync GitHub test cases to Jira
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - main
     paths:
       - 'test-cases/**'
-      - 'tools/sync_to_jira.py'
+      - 'tools/import/sync_to_jira.py'
   workflow_dispatch:
 
 jobs:
@@ -29,7 +30,7 @@ jobs:
       - name: Sync to Jira
         env:
           JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
-          JIRA_EMAIL:     ${{ secrets.JIRA_EMAIL }}
+          JIRA_EMAIL: ${{ secrets.JIRA_EMAIL }}
           JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
           ADD_REMOTE_LINKS: 'false'   # set to 'true' if you also want web links
-        run: python tools/sync_to_jira.py
+        run: python tools/import/sync_to_jira.py
