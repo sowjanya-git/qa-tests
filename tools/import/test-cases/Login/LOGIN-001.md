@@ -11,7 +11,7 @@ Jira Keys: SCRUM-2
 ---
 
 ## Test Steps
-1. Navigate to login page
+1. Navigate to login page.
 2. Enter valid email
 3. Enter correct password
 4. Click “Log in”
