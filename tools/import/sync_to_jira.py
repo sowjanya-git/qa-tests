@@ -2,13 +2,13 @@ import os
 import requests
 from pathlib import Path
 
-# Jira environment variables from GitHub workflow
+# Jira environment variables from GitHub secrets
 jira_base = os.getenv("JIRA_BASE_URL")
 jira_email = os.getenv("JIRA_EMAIL")
 jira_token = os.getenv("JIRA_API_TOKEN")
 jira_project = os.getenv("JIRA_PROJECT_KEY", "SCRUM")  # Example: your project key
 
-# Base folder for test cases
+# Folder containing test cases
 test_cases_dir = Path("test-cases")
 
 def parse_md(file_path):
@@ -22,26 +22,27 @@ def parse_md(file_path):
     return fields
 
 def create_jira_testcase(fields):
-    """Creates a Jira Test Case issue from parsed fields"""
+    """Creates a Jira Test Case issue with proper field mapping"""
 
     payload = {
         "fields": {
             "project": {"key": jira_project},
             "issuetype": {"name": "Test Case"},
             "summary": f"{fields.get('Test Case ID')} - {fields.get('Test Scenario')}",
-
-            # Standard Jira fields
             "description": fields.get("Test Description", ""),
             "priority": {"name": fields.get("Priority", "Medium")},
 
-            # Custom fields mapping (replace IDs with your Jira field IDs!)
-            "customfield_10130": fields.get("Expected Result", ""),     # Example ID
-            "customfield_10131": fields.get("Actual Result", ""),       # You already found this one
+            # Link to parent User Story (important!)
+            "parent": {"key": fields.get("Jira Keys")},
+
+            # Custom fields mapping with your confirmed IDs
+            "customfield_10130": fields.get("Expected Result", ""),
+            "customfield_10131": fields.get("Actual Result", ""),
             "customfield_10128": fields.get("Test Steps", ""),
             "customfield_10129": fields.get("Test Data", ""),
             "customfield_10126": fields.get("Pre-Conditions", ""),
             "customfield_10124": fields.get("Test Scenario", ""),
-            "customfield_10091": fields.get("Status", ""),              # Execution Status
+            "customfield_10091": fields.get("Status", ""),   # Execution Status
             "customfield_10127": fields.get("Test Type", "")
         }
     }
@@ -56,7 +57,7 @@ def create_jira_testcase(fields):
 
     if r.status_code == 201:
         issue_key = r.json()["key"]
-        print(f"✅ Created Jira Test Case: {issue_key}")
+        print(f"✅ Created Jira Test Case: {issue_key} under {fields.get('Jira Keys')}")
     else:
         print(f"❌ Failed to create issue: {r.status_code} {r.text}")
 
