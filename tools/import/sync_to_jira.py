@@ -2,67 +2,70 @@ import os
 import requests
 from pathlib import Path
 
-# Load environment variables from GitHub workflow
+# Jira environment variables from GitHub workflow
 jira_base = os.getenv("JIRA_BASE_URL")
 jira_email = os.getenv("JIRA_EMAIL")
 jira_token = os.getenv("JIRA_API_TOKEN")
-add_links = os.getenv("ADD_REMOTE_LINKS", "false").lower() == "true"
-
-# Get GitHub repo/branch dynamically (from workflow env)
-github_repo = os.getenv("GITHUB_REPO", "sowjanya-git/qa-tests")
-github_branch = os.getenv("GITHUB_BRANCH", "main")
+jira_project = os.getenv("JIRA_PROJECT_KEY", "SCRUM")  # Example: your project key
 
 # Base folder for test cases
 test_cases_dir = Path("test-cases")
 
-def extract_jira_key(file_path):
-    """Reads file and extracts Jira Keys: value if present"""
+def parse_md(file_path):
+    """Reads markdown file and extracts test case fields"""
+    fields = {}
     with open(file_path, "r", encoding="utf-8") as f:
         for line in f:
-            if line.strip().lower().startswith("jira keys:"):
-                return line.split(":", 1)[1].strip()
-    return None
+            if ":" in line:
+                key, value = line.split(":", 1)
+                fields[key.strip()] = value.strip()
+    return fields
 
-def create_remote_link(issue_key, github_url, title):
-    """Creates remote link in Jira for a given issue"""
+def create_jira_testcase(fields):
+    """Creates a Jira Test Case issue from parsed fields"""
+
     payload = {
-        "object": {
-            "url": github_url,
-            "title": title
+        "fields": {
+            "project": {"key": jira_project},
+            "issuetype": {"name": "Test Case"},
+            "summary": f"{fields.get('Test Case ID')} - {fields.get('Test Scenario')}",
+
+            # Standard Jira fields
+            "description": fields.get("Test Description", ""),
+            "priority": {"name": fields.get("Priority", "Medium")},
+
+            # Custom fields mapping (replace IDs with your Jira field IDs!)
+            "customfield_10130": fields.get("Expected Result", ""),     # Example ID
+            "customfield_10131": fields.get("Actual Result", ""),       # You already found this one
+            "customfield_10128": fields.get("Test Steps", ""),
+            "customfield_10129": fields.get("Test Data", ""),
+            "customfield_10126": fields.get("Pre-Conditions", ""),
+            "customfield_10124": fields.get("Test Scenario", ""),
+            "customfield_10091": fields.get("Status", ""),              # Execution Status
+            "customfield_10127": fields.get("Test Type", "")
         }
     }
+
+    # Call Jira API
     r = requests.post(
-        f"{jira_base}/rest/api/3/issue/{issue_key}/remotelink",
+        f"{jira_base}/rest/api/3/issue",
         json=payload,
         auth=(jira_email, jira_token),
         headers={"Content-Type": "application/json"}
     )
+
     if r.status_code == 201:
-        print(f"✅ Linked {title} to {issue_key}")
+        issue_key = r.json()["key"]
+        print(f"✅ Created Jira Test Case: {issue_key}")
     else:
-        print(f"❌ Failed to link {title} to {issue_key}: {r.status_code} {r.text}")
+        print(f"❌ Failed to create issue: {r.status_code} {r.text}")
 
 def main():
-    if not add_links:
-        print("Skipping remote links (ADD_REMOTE_LINKS=false)")
-        return
-
     print(f"🔍 Scanning folder: {test_cases_dir.resolve()}")
-
-    # Find all markdown files in test-cases/
     for md_file in test_cases_dir.rglob("*.md"):
-        print(f"📄 Processing file: {md_file}")
-        jira_key = extract_jira_key(md_file)
-        if not jira_key:
-            print(f"⚠️ No Jira key found in {md_file}")
-            continue
-
-        # Build GitHub file URL
-        relative_path = md_file.as_posix()
-        github_url = f"https://github.com/{github_repo}/blob/{github_branch}/{relative_path}"
-
-        print(f"🔗 Preparing to link {md_file.name} → Jira issue {jira_key}")
-        create_remote_link(jira_key, github_url, md_file.name)
+        print(f"📄 Processing: {md_file}")
+        fields = parse_md(md_file)
+        create_jira_testcase(fields)
 
 if __name__ == "__main__":
     main()
